@@ -26,11 +26,11 @@ function makeObj(data){
     //const allDatesArr = photosArr.map(data => data.earth_date);
 }
 
-app.get('/curiosity', async (req, res) => {
+app.get('/rover/:name', async (req, res) => {
     try {
-        console.log("Here");
+        const roverName = req.params.name;
         //manifest url
-        const manURL = "https://api.nasa.gov/mars-photos/api/v1/manifests/Curiosity/?api_key=" + process.env.API_KEY;
+        const manURL = "https://api.nasa.gov/mars-photos/api/v1/manifests/" + roverName + "/?api_key=" + process.env.API_KEY;
         
         let data = await fetch(manURL)
                   .then(response => {
@@ -39,7 +39,7 @@ app.get('/curiosity', async (req, res) => {
         const dataObj = makeObj(data); //add data into an object
 
         //main url
-        const mainURL = "https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date=" + dataObj.maxDate + "&api_key=" + process.env.API_KEY;  
+        const mainURL = "https://api.nasa.gov/mars-photos/api/v1/rovers/" + roverName + "/photos?earth_date=" + dataObj.maxDate + "&api_key=" + process.env.API_KEY;  
 
         let images = await fetch(mainURL)
                      .then(response => {
@@ -62,27 +62,16 @@ app.get('/curiosity', async (req, res) => {
 
 
 
+app.get('/apod', async (req, res) => {
+    try {
+        const url = "https://api.nasa.gov/planetary/apod?api_key=" + process.env.API_KEY;  
+        let image = await fetch(url).then(response => response.json())
+        res.send({image}) 
+    } catch (err) {
+        console.log('error:', err);
+    }
+})
 
 
-
-
-
-
-
-
-
-
-
-
-
-// app.get('/apod', async (req, res) => {
-//     try {
-//         const url = "https://api.nasa.gov/planetary/apod?api_key=" + process.env.API_KEY;  
-//         let image = await fetch(url).then(response => response.json())
-//         res.send({image}) 
-//     } catch (err) {
-//         console.log('error:', err);
-//     }
-// })
 // run server
 app.listen(port, () => console.log(`Server listening on port ${port}!`))
