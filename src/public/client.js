@@ -1,29 +1,66 @@
+const setUp = document.getElementById('setup');
 const rootEl = document.getElementById('root');
+const buttonC = document.getElementById('curiosity');
+const buttonO = document.getElementById('opportunity');
+const buttonS = document.getElementById('spirit');
 
 //STATE object
 const store = {
-    apod: 'test',
+    apod: '',
     roverData: ''
 }
 
 const updateStore = (store, newState) => {
-    store = Object.assign(store, newState)
-    render(root, store)
+    store = Object.assign(store, newState);
+    //if roverData is a string then apod has been updated
+    if (typeof store.roverData === "string"){
+         render(setUp, store) //display apod
+    }else{
+         render(rootEl, store) //display rover
+    }
 }
+   
 
 //renders correct HTML to the specified element
 const render = async (element, state) => {
-    element.innerHTML = app(state);
+    element.innerHTML = app(element, state);
 }
 
 //compile all HTML here
-const app = (state) => {
+const app = (element, state) => {
     let {apod, roverData} = state;
-    //todo check if data available before trying to use it.
-    return `
-          ${dataFromRover(roverData)} 
-          ${imagesFromRover(roverData)}
-    `;
+    
+    switch(element){
+        case setup : {
+            return `
+            <img src="${apod.image.url}" height="100px" width="50%" />
+            <p>${apod.image.explanation}</p>
+            `
+        }
+        case root : {
+            //check if data is available before trying to use it.
+            if (typeof roverData === 'string'){
+                return `
+                    <H1>Error, no data</H1>
+                `
+            };
+            return ` 
+               <header></header>
+                <main>
+                    <section>
+                        <p>
+                            ${dataFromRover(roverData)} 
+                        </p>
+        
+                        <p>
+                            ${imagesFromRover(roverData)}
+                        </p>
+                    </section>
+                </main>
+                <footer></footer>
+            `;
+        }//case
+    }//switch 
 }
 
 // ------------------------------COMPONENTS--------------------------- 
@@ -37,16 +74,36 @@ const dataFromRover = (roverData) => {
     `;
 }
 
-const imagesFromRover = (roverData) => {
+ const imagesFromRover = (roverData) => {
+    let strHTML = ''; 
+    roverData.imagesArr.forEach((img) => {
+        strHTML += oneImageFromRover(img);
+    })
+    return strHTML;
+ }
+
+const oneImageFromRover = (img) => {
     return `
-         <p>${roverData.imagesArr[0].camera}</p> 
-         <img src=${roverData.imagesArr[0].image}>;
+         <p>${img.camera}</p> 
+         <img src=${img.image} height="100px" width="25%"> 
     `;
 }
 
 // -----------------------------EVENTS----------------------------------------
 window.addEventListener("load", () => {
-    getDataFromRover("curiosity");
+    getImageOfTheDay();
+})
+
+buttonC.addEventListener("click", () => {
+    getDataFromRover("curiosity"); 
+})
+
+buttonO.addEventListener("click", () => {
+    getDataFromRover("opportunity"); 
+})
+
+buttonS.addEventListener("click", () => {
+    getDataFromRover("spirit"); 
 })
 
 // ------------------------------API CALLS------------------------------------
