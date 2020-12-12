@@ -22,13 +22,24 @@ function makeObj(data){
         photosArr : data.photo_manifest.photos 
         //imagesArr : this is added later -- chosen days image URL and camera description
     }
-    //const recentPhotosQuantity = photosArr[photosArr.length - 1].total_photos; //quantity of most recent photos
-    //const allDatesArr = photosArr.map(data => data.earth_date);
 }
 
-app.get('/rover/:name', async (req, res) => {
+function getDate(date, dataObj){
+    let findWithDate;
+    if (date === "no date"){
+        findWithDate = dataObj.maxDate;
+    }else{
+        findWithDate = date;
+    }
+    return findWithDate;
+}
+
+// ----------------------------Rover----------------------------
+app.get('/rover/:name/date/:date', async (req, res) => {
     try {
         const roverName = req.params.name;
+        const date = req.params.date;
+        
         //manifest url
         const manURL = "https://api.nasa.gov/mars-photos/api/v1/manifests/" + roverName + "/?api_key=" + process.env.API_KEY;
         
@@ -39,7 +50,7 @@ app.get('/rover/:name', async (req, res) => {
         const dataObj = makeObj(data); //add data into an object
 
         //main url
-        const mainURL = "https://api.nasa.gov/mars-photos/api/v1/rovers/" + roverName + "/photos?earth_date=" + dataObj.maxDate + "&api_key=" + process.env.API_KEY;  
+        const mainURL = "https://api.nasa.gov/mars-photos/api/v1/rovers/" + roverName + "/photos?earth_date=" + getDate(date,dataObj) + "&api_key=" + process.env.API_KEY;  
 
         let images = await fetch(mainURL)
                      .then(response => {
@@ -61,7 +72,7 @@ app.get('/rover/:name', async (req, res) => {
 })
 
 
-
+//----------------------------------APOD-----------------------------
 app.get('/apod', async (req, res) => {
     try {
         const url = "https://api.nasa.gov/planetary/apod?api_key=" + process.env.API_KEY;  
