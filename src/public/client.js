@@ -1,3 +1,4 @@
+const dateEl = document.getElementById('date');
 const setUp = document.getElementById('setup');
 const rootEl = document.getElementById('root');
 const buttonC = document.getElementById('curiosity');
@@ -38,6 +39,9 @@ const app = (element, state) => {
             `
         }
         case root : {
+            //populate date picker
+            populateDatePicker(roverData, dateEl);
+           
             //check if data is available before trying to use it.
             if (typeof roverData === 'string'){
                 return `
@@ -64,6 +68,13 @@ const app = (element, state) => {
 }
 
 // ------------------------------COMPONENTS--------------------------- 
+const populateDatePicker = (roverData) => {
+    let dateOption = document.createElement('option');
+    dateOption.text = roverData.photosArr[0].earth_date;
+    dateOption.value = roverData.photosArr[0].earth_date;
+    dateEl.add(dateOption);
+}    
+
 const dataFromRover = (roverData) => {
     return `
         <h3>Current rover is ${roverData.roverName}</h3>
@@ -94,6 +105,7 @@ window.addEventListener("load", () => {
     getImageOfTheDay();
 })
 
+//TODO - pass in selected date
 buttonC.addEventListener("click", () => {
     getDataFromRover("curiosity"); 
 })
@@ -112,7 +124,7 @@ buttonS.addEventListener("click", () => {
 // API call to local server
 //NOTE :- THE STORE IS UPDATED FIRST THEN THE DATA USED FROM THE STORE
 
-const getDataFromRover = (roverName) => {
+const getDataFromRover = (roverName, date) => {
     fetch(`http://localhost:3000/rover/${roverName}`)
     .then(res => res.json())
     .then(roverData => updateStore(store, { roverData }));   
