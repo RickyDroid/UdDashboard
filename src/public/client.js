@@ -1,9 +1,12 @@
-const dateEl = document.getElementById('date');
-const setUp = document.getElementById('setup');
-const rootEl = document.getElementById('root');
 const buttonC = document.getElementById('curiosity');
 const buttonO = document.getElementById('opportunity');
 const buttonS = document.getElementById('spirit');
+const dateC = document.getElementById('curiosity-dates');
+const dateO = document.getElementById('opportunity-dates');
+const dateS = document.getElementById('spirit-dates');
+
+const setUp = document.getElementById('setup');
+const rootEl = document.getElementById('root');
 
 //STATE object
 const store = {
@@ -13,7 +16,7 @@ const store = {
 
 const updateStore = (store, newState) => {
     store = Object.assign(store, newState);
-    //if roverData is a string then apod has been updated
+    //if roverData is a string (not an object) then apod has been updated
     if (typeof store.roverData === "string"){
          render(setUp, store) //display apod
     }else{
@@ -21,7 +24,6 @@ const updateStore = (store, newState) => {
     }
 }
    
-
 //renders correct HTML to the specified element
 const render = async (element, state) => {
     element.innerHTML = app(element, state);
@@ -30,7 +32,7 @@ const render = async (element, state) => {
 //compile all HTML here
 const app = (element, state) => {
     let {apod, roverData} = state;
-    
+ 
     switch(element){
         case setup : {
             return `
@@ -39,8 +41,7 @@ const app = (element, state) => {
             `
         }
         case root : {
-            //populate date picker
-            populateDatePicker(roverData, dateEl);
+            populateDateDropdown(roverData);
            
             //check if data is available before trying to use it.
             if (typeof roverData === 'string'){
@@ -68,11 +69,26 @@ const app = (element, state) => {
 }
 
 // ------------------------------COMPONENTS--------------------------- 
-const populateDatePicker = (roverData) => {
-    let dateOption = document.createElement('option');
-    dateOption.text = roverData.photosArr[0].earth_date;
-    dateOption.value = roverData.photosArr[0].earth_date;
-    dateEl.add(dateOption);
+const populateDateDropdown = (roverData) => {
+    //check which is the current rover and reference correct drop down
+    let dateEl;
+    switch (roverData.roverName){
+        case "Curiosity" : dateEl = dateC; break;
+        case "Opportunity" : dateEl = dateO; break;
+        case "Spirit" : dateEl = dateS; break;
+    }
+    //if hidden populate and make visible
+    if(dateEl.style.visibility === "hidden"){
+        const dates = roverData.photosArr; 
+        let dateOption;
+        dates.reverse().forEach((obj) => {
+            dateOption = document.createElement("option");
+            dateOption.text = obj.earth_date;
+            dateOption.value = obj.earth_date;
+            dateEl.add(dateOption);
+        })
+        dateEl.style.visibility = "visible";
+    }
 }    
 
 const dataFromRover = (roverData) => {
@@ -105,17 +121,16 @@ window.addEventListener("load", () => {
     getImageOfTheDay();
 })
 
-//TODO - pass in selected date
 buttonC.addEventListener("click", () => {
-    getDataFromRover("curiosity"); 
+    getDataFromRover("curiosity", dateC.value); 
 })
 
 buttonO.addEventListener("click", () => {
-    getDataFromRover("opportunity"); 
+    getDataFromRover("opportunity", dateO.value); 
 })
 
 buttonS.addEventListener("click", () => {
-    getDataFromRover("spirit"); 
+    getDataFromRover("spirit", dateS.value); 
 })
 
 // ------------------------------API CALLS------------------------------------
@@ -125,7 +140,10 @@ buttonS.addEventListener("click", () => {
 //NOTE :- THE STORE IS UPDATED FIRST THEN THE DATA USED FROM THE STORE
 
 const getDataFromRover = (roverName, date) => {
-    fetch(`http://localhost:3000/rover/${roverName}`)
+    if (date === ""){
+        date = "no date"; //can't send empty string
+    }
+    fetch(`http://localhost:3000/rover/${roverName}/date/${date}`)
     .then(res => res.json())
     .then(roverData => updateStore(store, { roverData }));   
 }
