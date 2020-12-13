@@ -3,6 +3,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const fetch = require('node-fetch')
 const path = require('path')
+const { isDate } = require('util')
 
 const app = express()
 const port = 3000
@@ -11,28 +12,36 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use('/', express.static(path.join(__dirname, '../public'))) //send static content 
 
-function makeObj(data){
+function makeObj(data, date){
+    let dop;
+    if (date === "no date"){
+        dop = data.photo_manifest.max_date;
+    }else{
+        dop = date;
+    }   
+
     return {
         roverName : data.photo_manifest.name,
         landingDate : data.photo_manifest.landing_date,
         launchDate : data.photo_manifest.launch_date,
         status : data.photo_manifest.status,
-        maxSol : data.photo_manifest.max_sol,    
-        maxDate : data.photo_manifest.max_date, 
+        dateOfPhotos : dop, 
+        //maxSol : data.photo_manifest.max_sol,    
+        //maxDate : data.photo_manifest.max_date, 
         photosArr : data.photo_manifest.photos 
         //imagesArr : this is added later -- chosen days image URL and camera description
     }
 }
 
-function getDate(date, dataObj){
-    let findWithDate;
-    if (date === "no date"){
-        findWithDate = dataObj.maxDate;
-    }else{
-        findWithDate = date;
-    }
-    return findWithDate;
-}
+// function getDate(date, dataObj){
+//     let findWithDate;
+//     if (date === "no date"){
+//         findWithDate = dataObj.maxDate;
+//     }else{
+//         findWithDate = date;
+//     }
+//     return findWithDate;
+// }
 
 // ----------------------------Rover----------------------------
 app.get('/rover/:name/date/:date', async (req, res) => {
@@ -47,10 +56,10 @@ app.get('/rover/:name/date/:date', async (req, res) => {
                   .then(response => {
                       return response.json()
                    });
-        const dataObj = makeObj(data); //add data into an object
+        const dataObj = makeObj(data, date); 
 
         //main url
-        const mainURL = "https://api.nasa.gov/mars-photos/api/v1/rovers/" + roverName + "/photos?earth_date=" + getDate(date,dataObj) + "&api_key=" + process.env.API_KEY;  
+        const mainURL = "https://api.nasa.gov/mars-photos/api/v1/rovers/" + roverName + "/photos?earth_date=" + dataObj.dateOfPhotos + "&api_key=" + process.env.API_KEY;  
 
         let images = await fetch(mainURL)
                      .then(response => {
