@@ -9,21 +9,23 @@ const setUp = document.getElementById('setup');
 const rootEl = document.getElementById('root');
 
 //STATE object
-const store = {
+let store = Immutable.Map({
     apod: '',
     roverData: ''
-}
+})
 
-const updateStore = (store, newState) => {
-    store = Object.assign(store, newState);
-    //if roverData is a string (not an object) then apod has been updated
-    if (typeof store.roverData === "string"){
-         render(setUp, store) //display apod
+const updateStore = (state, newState) => {
+    store = state.merge(Immutable.Map(newState))
+    state = {apod : store.get('apod'), 
+             roverData :store.get('roverData') 
+            }
+    if (typeof state.roverData === "string"){
+        render(setUp, state) //display apod
     }else{
-         render(rootEl, store) //display rover
+        render(rootEl, state) //display rover
     }
 }
-   
+
 //renders correct HTML to the specified element
 const render = async (element, state) => {
     element.innerHTML = app(element, state);
@@ -36,21 +38,15 @@ const app = (element, state) => {
     switch(element){
         case setup : {
             return `
-            <img src="${apod.image.url}" height="100px" width="50%" />
-            <p>${apod.image.explanation}</p>
-            `
-        }
+                <header>
+                  ${imageOfTheDay(apod)}
+                </header>
+            `    
+        }; break;
+
         case root : {
             populateDateDropdown(roverData);
-           
-            //check if data is available before trying to use it.
-            if (typeof roverData === 'string'){
-                return `
-                    <H1>Error, no data</H1>
-                `
-            };
             return ` 
-               <header></header>
                 <main>
                     <section>
                         <p>
@@ -69,6 +65,13 @@ const app = (element, state) => {
 }
 
 // ------------------------------COMPONENTS--------------------------- 
+const imageOfTheDay = (apod) => {
+   return `
+        <img src="${apod.url}" height="100px" width="50%" />
+        <p>${apod.explanation}</p>
+    `;
+}
+
 const populateDateDropdown = (roverData) => {
     //check which is the current rover and reference correct drop down
     let dateEl;
@@ -97,7 +100,7 @@ const dataFromRover = (roverData) => {
         <h3>Current status is ${roverData.status}</h3>
         <h3>Launch date was ${roverData.launchDate}</h3>
         <h3>Landing date was ${roverData.landingDate}</h3>
-        <h3>Date of pictures ${roverData.maxDate}</h3>
+        <h3>Date of photos ${roverData.dateOfPhotos} </h3>
     `;
 }
 
@@ -121,6 +124,7 @@ window.addEventListener("load", () => {
     getImageOfTheDay();
 })
 
+"TODO - use same event for every button"
 buttonC.addEventListener("click", () => {
     getDataFromRover("curiosity", dateC.value); 
 })
@@ -153,3 +157,5 @@ const getImageOfTheDay = () => {
    .then(res => res.json())
    .then(apod => updateStore(store, { apod })) 
 }     
+
+
