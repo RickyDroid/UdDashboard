@@ -26,22 +26,10 @@ function makeObj(data, date){
         launchDate : data.photo_manifest.launch_date,
         status : data.photo_manifest.status,
         dateOfPhotos : dop, 
-        //maxSol : data.photo_manifest.max_sol,    
-        //maxDate : data.photo_manifest.max_date, 
         photosArr : data.photo_manifest.photos 
         //imagesArr : this is added later -- chosen days image URL and camera description
     }
 }
-
-// function getDate(date, dataObj){
-//     let findWithDate;
-//     if (date === "no date"){
-//         findWithDate = dataObj.maxDate;
-//     }else{
-//         findWithDate = date;
-//     }
-//     return findWithDate;
-// }
 
 // ----------------------------Rover----------------------------
 app.get('/rover/:name/date/:date', async (req, res) => {
@@ -86,12 +74,13 @@ app.get('/apod', async (req, res) => {
     try {
         const url = "https://api.nasa.gov/planetary/apod?api_key=" + process.env.API_KEY;  
         let image = await fetch(url).then(response => response.json())
-        res.send({image}) 
+        res.send(image) 
     } catch (err) {
         console.log('error:', err);
     }
 })
 
+//https://api.nasa.gov/insight_weather/?api_key=DEMO_KEY&feedtype=json&ver=1.0
 
 // run server
 app.listen(port, () => console.log(`Server listening on port ${port}!`))
