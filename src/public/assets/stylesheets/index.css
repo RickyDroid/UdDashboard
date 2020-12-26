@@ -1,0 +1,172 @@
+body {
+  background-color: #fca652;
+  font-family: Arial;
+  min-height: 100vh;
+}
+header {
+  background-color: #ffefa0;
+  text-align: center;
+}
+header h1 {
+  margin-top: 0px;
+  padding-top: 20px;
+  color :#9e4a4a;
+}
+
+
+/* -------------------------- NAV -------------------------- */
+
+/* div surrounding the button plus date and cam dropdowns */
+.bdc-container {
+  display: inline-block;
+  width: 33.3333%;
+}
+.btn {
+  display: block;
+  width: 220px;
+  height : 40px;
+  margin: 5px auto 0 auto;
+  color:#9e4a4a;
+  font-weight: 300;
+  font-size: 25px;
+  border: none;  
+}
+.btn:hover {
+  color: red;
+}
+/* div surrounding the date and cam dropdowns */
+.dc-container {
+  display: block;
+  width: 220px;
+  margin: 5px auto 0 auto;
+}
+.dates {
+  margin-bottom: 5px;
+  height : 35px;
+  width: 107px;
+  color: brown;
+  font-size: 15px;
+  border: none;
+}
+.dates:hover {
+  color: red;
+}
+.cams {
+  margin-bottom: 5px;
+  height : 35px;
+  width: 107px;
+  color: brown;
+  font-size: 15px;
+  border: none;
+}
+.cams:hover {
+  color: red;
+}
+.hidden {
+    visibility: hidden;
+}
+/* -------------------------------------------------------------------- */
+
+
+main {
+  background-color: #fca652;
+  flex: 1;
+  padding: 20px;
+}
+
+/* -----------------------------apod--------------------------------- */
+.apod-container {
+  text-align: center;
+}
+.apod-container h2 {
+  margin-top: 0px;
+}
+.apod-container img {
+  width: 500px;
+}
+
+
+/* -----------------------------rover data---------------------------- */
+table, th, td {
+  border: 1px solid black;
+}
+table {
+  width: 500px;
+  margin: 0 auto;
+  background-color: white;
+  color: brown;
+  border-collapse: collapse;
+  text-align: center;
+}
+table th{
+  color: black;
+}
+
+/* -----------------------------rover gallery------------------------- */
+.outer-grid {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0 4px;
+} 
+.rover-image-container {
+  display: inline-block; 
+  text-align: center;
+  margin-top: 8px;
+  width: 100%;
+  padding: 10px;
+}
+.rover-image-container img {
+  width: 100%;
+}
+
+/* ------------------------------------------------------------------- */
+
+
+
+/* ------------------- MOBILE ----------------------- */
+/* do if < 768px */
+nav {
+  display: flex; 
+  /* stacks the flex items vertically from top to bottom */
+  flex-direction: column; 
+  align-items: center;
+  background-color: #ffd57e;
+}
+
+.inner-grid { 
+  flex: 100%;
+  max-width: 100%;
+  padding: 0 4px;
+} 
+
+/* -------------------  TABLET  --------------------- */
+/* do if >= 768px */
+@media (min-width: 768px) {
+  /* use mobile */
+  nav {
+    flex-direction: row;
+    justify-content: space-around;
+  }
+  table {
+    width: 700px;   
+  }
+  .inner-grid {
+    flex: 50%;
+    max-width: 50%;
+  }
+  
+}
+
+/* -------------------  DESKTOP  -------------------- */
+@media (min-width: 1224px) {
+  /* use mobile */
+  .inner-grid {
+    flex: 25%;
+    max-width: 25%;
+  }
+}
+
+/* -------------------  LARGE SCREENS  -------------- */
+@media (min-width: 1824px) {
+  /* use mobile */
+}
