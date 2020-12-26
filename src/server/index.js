@@ -12,7 +12,6 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use('/', express.static(path.join(__dirname, '../public'))) //send static content 
 
-
 //returns either the most recent date of photos or a user selected date
 function getDate(data, date){
     if (date === "no date"){
