@@ -1,8 +1,3 @@
-const buttonC = document.getElementById('curiosity');
-const buttonO = document.getElementById('opportunity');
-const buttonS = document.getElementById('spirit');
-const buttonTest = document.getElementById('test-cam');
-
 const dateC = document.getElementById('curiosity-dates');
 const dateO = document.getElementById('opportunity-dates');
 const dateS = document.getElementById('spirit-dates');
@@ -22,59 +17,66 @@ let store = Immutable.Map({
 
 const updateStore = (oldState, newState) => {
     store = oldState.merge(Immutable.Map(newState))
-    let state = {apod : store.get('apod'), 
-                 roverData :store.get('roverData') 
-                }
+    let state = getStore();              
     //if no roverData then display apod            
     if (typeof state.roverData === "string"){
-        render(setUp, state, "displayApod") //display apod
+        render(rootEl, state, "displayApod") //display apod
     }else{
         render(rootEl, state, "displayRover") //display rover
     }
 }
 
-//renders correct HTML to the specified element
+const getStore = () => {
+    return {
+        apod : store.get('apod'), 
+        roverData :store.get('roverData')
+    }
+}
+
+//renders to the specified element the correct HTML at the correct event
+//         perameters:- where, what, when.
 const render = async (element, state, myEvent) => {
-    element.innerHTML = app(element, state, myEvent);
+    element.innerHTML = app(state, myEvent);
 }
 
 //return required HTML 
-const app = (element, state, myEvent) => {
+const app = (state, myEvent) => {
     let {apod, roverData} = state;
-    switch(element){
-        case setup : {
+    switch(myEvent){
+        case "displayApod" : {
             return `
-                <header>
-                  ${imageOfTheDay(apod)}
-                </header>
+                ${imageOfTheDay(apod)}
             `    
-        }; break;
-
-        case root : {
+        }; 
+        //fresh API data here so have to update the correct dropdowns.
+        case "displayRover" : {
             //setup navigation controls
-            if (myEvent === "displayRover"){
-                 populateDropdowns(roverData); 
-            }
-           
+            hideDropdowns();
+            populateDropdowns(roverData); 
             return ` 
-                <main>
-                    <section>
-                        <p>
-                            ${dataFromRover(roverData)} 
-                        </p>
-        
-                        <p>
-                            ${imagesFromRover(roverData)}
-                        </p>
-                    </section>
-                </main>
-                <footer></footer>
+               ${dataFromRover(roverData)} 
+               ${imagesFromRover(roverData)}
             `;
-        }//case
+        };
+        //here the images in roverData have been filtered by the cam dropdown.
+        //no need to make another call the the API.
+        case "dispRoverByCam" : {
+            return ` 
+                ${dataFromRover(roverData)} 
+                ${imagesFromRover(roverData)}
+            `;
+        }
     }//switch 
 }
 
-// -----------------COMPONENTS TO SETUP NAV--------------------------- 
+// -----------------COMPONENTS TO SETUP NAV---------------------------
+//hide all dropdowns 
+const hideDropdowns = () => {
+  var element = document.getElementsByClassName("drop-down");
+  for (let i = 0; i < element.length; i++) {
+    element[i].classList.add("hidden");
+  }
+}
 
  //check which is the current rover and reference correct drop downs
 const populateDropdowns = (roverData) => {
@@ -102,18 +104,17 @@ const selectCamDropdown = (roverData) => {
 
 //adds all available image dates for selected rover
 const dateDropdown = (dateEl, roverData) => {
-    //only need to do once
-    if (dateEl.style.visibility === "hidden"){
+    //only need to do once per API call 
+    if (dateEl.classList.contains("hidden")){
         const arr = roverData.photosArr; 
         let dateOption;
-
         arr.slice().reverse().forEach(obj => {
             dateOption = document.createElement("option");
             dateOption.text = obj.earth_date;
             dateOption.value = obj.earth_date;
             dateEl.add(dateOption);
         })
-        dateEl.style.visibility = "visible";
+        dateEl.classList.remove("hidden");
     }
 }
 
@@ -133,54 +134,90 @@ const camDropdown = (camEl, roverData) => {
         camOption.value = camStr;
         camEl.add(camOption);
     }) 
-    camEl.style.visibility = "visible"; 
+    camEl.classList.remove("hidden"); 
 } 
 
 //--------------------COMPONENTS TO RENDER HTML------------------------
 const imageOfTheDay = (apod) => {
-    if (apod.media_type === "video"){
-       return`
-           <p>${apod.title}</p>
-           <p>See today's featured video <a href="${apod.url}">here</a></p>
-           <p>${apod.explanation}</p>
+    if (apod.media_type !== "video"){
+        //Display new apod
+        return`
+            <div class="apod-container">
+                <h2>Astronomy Picture Of the Day</h2>
+                <h3>${apod.title}</h3>
+                <p>${apod.explanation}</p>
+                <img src="${apod.url}"/> 
+            </div> 
        `;
-   }else{
-       return `
-           <p>${apod.title}</p>
-           <img src="${apod.url}" height="100px" width="50%" />
-           <p>${apod.explanation}</p>
-       `;
-   }
+    }else{
+        //Display a default mars image
+        return`
+            <div class="apod-container">
+                <h2>Select A Rover</h2>
+                <img src="assets/images/mars.jpg"/>
+            </div> 
+       `;  
+    }   
 }
 
 const dataFromRover = (roverData) => {
     return `
-        <h3>Current rover is ${roverData.roverName}</h3>
-        <h3>Current status is ${roverData.status}</h3>
-        <h3>Launch date was ${roverData.launchDate}</h3>
-        <h3>Landing date was ${roverData.landingDate}</h3>
-        <h3>Date of photos ${roverData.dateOfPhotos} </h3>
+        <div class="rover-data-container">
+        <table>
+        <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Launch Date</th>
+            <th>Landing Date</th>
+            <th>Date of Photos</th>  
+        </tr>
+        <tr>
+            <td>${roverData.roverName}</td>
+            <td>${roverData.status}</td>
+            <td>${roverData.launchDate}</td>
+            <td>${roverData.landingDate}</td>
+            <td>${roverData.dateOfPhotos}</td>
+        </tr>
+        </table>
+        </div>
     `;
 }
 
- const imagesFromRover = (roverData) => {
-    let images; 
-    let strHTML = ''; 
-    if (camC.value === "ALLCAMS"){
-        images = roverData.imagesArr;
-    }else{
-        images = roverData.imagesArr.filter(obj => obj.camCode === camC.value);       
-    }
-    images.forEach((img) => {
-        strHTML += oneImageFromRover(img);
+const imagesFromRover = (roverData) => {
+    //create outer grid
+    let html = ''; 
+    
+    selectImages(roverData).forEach((img) => {
+        //create inner grid 
+        html += `
+            <div class="inner-grid">
+                ${oneImageFromRover(img)}
+            </div>
+        `;
     })
-    return strHTML;
+
+    return `
+        <div class="outer-grid">
+           ${html}
+        </div>
+    `;
+}
+
+const selectImages = (roverData) => {
+    let camDropdown = selectCamDropdown(roverData);
+    if (camDropdown.value === "ALLCAMS"){
+        return roverData.imagesArr;
+    }else{
+        return roverData.imagesArr.filter(obj => obj.camCode === camDropdown.value);       
+    }
 }
 
 const oneImageFromRover = (img) => {
     return `
-         <p>${img.camera}</p> 
-         <img src=${img.image} height="100px" width="25%"> 
+        <div class="rover-image-container">
+            <p>${img.camera}</p>
+            <img src=${img.image}>
+        </div>  
     `;
 }
 
@@ -189,30 +226,39 @@ window.addEventListener("load", () => {
     getImageOfTheDay();
 })
 
-buttonC.addEventListener("click", () => {
+document.querySelectorAll('.btn').forEach(item => {
+    item.addEventListener('click', event => {
+        getDataFromRover(event.target.innerHTML,"no date"); 
+    })
+})
+
+dateC.addEventListener("change", () => {
     getDataFromRover("curiosity", dateC.value); 
 })
 
-buttonO.addEventListener("click", () => {
+dateO.addEventListener("change", () => {
     getDataFromRover("opportunity", dateO.value); 
 })
 
-buttonS.addEventListener("click", () => {
+dateS.addEventListener("change", () => {
     getDataFromRover("spirit", dateS.value); 
 })
 
 camC.addEventListener("change", () => {
-    let s = {apod : store.get('apod'), 
-                 roverData :store.get('roverData') 
-                }
-    render(rootEl, s, "dispRoverByCam");         
+    render(rootEl, getStore(), "dispRoverByCam");         
 }) 
+
+camO.addEventListener("change", () => {
+    render(rootEl, getStore(), "dispRoverByCam");         
+}) 
+
+camS.addEventListener("change", () => {
+    render(rootEl, getStore(), "dispRoverByCam");         
+}) 
+
 
 // ------------------------------API CALLS------------------------------------
 const getDataFromRover = (roverName, date) => {
-    if (date === ""){
-        date = "no date"; //can't send empty string
-    }
     fetch(`http://localhost:3000/rover/${roverName}/date/${date}`)
     .then(res => res.json())
     .then(roverData => updateStore(store, { roverData }));   
@@ -225,4 +271,3 @@ const getImageOfTheDay = () => {
 }     
 
 
-//https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=1000&api_key=m1g0UAblQZbOJx27R6H1lOJaKIMYTfj88RLyg1K4
