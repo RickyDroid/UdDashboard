@@ -1,53 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <link rel="stylesheet" href="assets/stylesheets/resets.css">
+    <link rel="stylesheet" href="assets/stylesheets/index.css">
+    <link rel="icon" href="assets/images/favicon.ico">
+    <title>Mars Dashboard</title>
 </head>
-
 <body>
-    <nav>
-        <button id = "curiosity">Curiosity</button>
-        <select id="curiosity-dates" style="visibility:hidden">
-            <!-- dynamically populated in client.js -->
-        </select>
-        <select id="curiosity-cams" style="visibility:hidden">
-            <!-- dynamically populated in client.js -->
-        </select>
-        
-        <button id = "opportunity">Opportunity</button>
-        <select id="opportunity-dates" style="visibility:hidden">
-            <!-- dynamically populated in client.js -->
-        </select>
-        <select id="opportunity-cams" style="visibility:hidden">
-            <!-- dynamically populated in client.js -->
-        </select>
-        
-        <button id = "spirit">Spirit</button>
-        <select id="spirit-dates" style="visibility:hidden">
-            <!-- dynamically populated in client.js -->
-        </select>  
-        <select id="spirit-cams" style="visibility:hidden">
-            <!-- dynamically populated in client.js -->
-        </select>  
-        
-        <button id = "test-cam">Test cam selection</button>
-    </nav>
-    
-    <main>
-        <div id="setup">
-            <h1>Loading...</h1>
-        </div>
+    <header> 
+        <h1>Mars Rovers</h1>
+        <nav>
+            <div class="bdc-container"> 
+                <button class = "btn" id = "curiosity">Curiosity</button>
+                <div class="dc-container">
+                    <select class="dates drop-down hidden" id="curiosity-dates">
+                        <!-- dynamically populated in client.js -->
+                    </select>
+                    <select class="cams drop-down hidden" id="curiosity-cams">
+                        <!-- dynamically populated in client.js -->
+                    </select>
+                </div>
+            </div>
+            <div class="bdc-container">
+                <button class = "btn" id = "opportunity">Opportunity</button>
+                <div class="dc-container">
+                    <select class="dates drop-down hidden" id="opportunity-dates">
+                        <!-- dynamically populated in client.js -->
+                    </select>
+                    <select class="cams drop-down hidden" id="opportunity-cams">
+                        <!-- dynamically populated in client.js -->
+                    </select>
+                </div>
+            </div>
+            <div class="bdc-container">
+                <button class ="btn" id = "spirit">Spirit</button>
+                <div class="dc-container">
+                    <select class="dates drop-down hidden" id="spirit-dates">
+                        <!-- dynamically populated in client.js -->
+                    </select>  
+                    <select class="cams drop-down hidden" id="spirit-cams">
+                        <!-- dynamically populated in client.js -->
+                    </select>
+                </div>  
+            </div>
+        </nav>
+    </header>
 
+    <main>
         <div id="root">
-            
-        </div>
+            <h2>Loading...</h2>
+        </div>   
     </main>
+
+    <footer>
+        
+    </footer>
 </body>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/immutable/3.8.2/immutable.min.js" integrity="sha512-myCdDiGJRYrvRb/VuJ67ljifYTJdc1jdEvL4c4ftX9o3N6EAnmD83c/7l2/91RCINZ7c8w21tiXDT7RDFjdc3g==" crossorigin="anonymous"></script>
 <script src="/client.js"></script>
 </html>
+
