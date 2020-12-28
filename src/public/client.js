@@ -145,8 +145,7 @@ const getHTML = (request) => {
         case "APOD"   : return imageOfTheDay;
         case "DATA"   : return dataFromRover;
         case "IMAGES" : return imagesFromRover;
-    } 
-     
+    }    
 }
 
 const imageOfTheDay = (apod) => {
@@ -220,8 +219,8 @@ const imagesFromRover = (getImages, roverData) => {
 
 const getImages = (roverData) => {
     return (selectCamDropdown(roverData).value === "ALLCAMS") ?
-        roverData.imagesArr :
-        roverData.imagesArr.filter(obj => obj.camCode === camDropdown.value);       
+    roverData.imagesArr :
+    roverData.imagesArr.filter(obj => obj.camCode === selectCamDropdown(roverData).value);       
 }
 
 
@@ -264,14 +263,28 @@ camS.addEventListener("change", () => {
 // ------------------------------API CALLS------------------------------------
 const getDataFromRover = (roverName, date) => {
     fetch(`http://localhost:3000/rover/${roverName}/date/${date}`)
-    .then(res => res.json())
-    .then(roverData => updateStore(store, { roverData }));   
+    .then(res =>{
+        if(res.ok){
+            return res.json();
+        }else{
+            throw new Error("Connot get rover data");
+        }
+    })
+    .then(roverData => updateStore(store, { roverData }))
+    .catch((err) => console.log("Error:- " + err));  
 }
 
 const getImageOfTheDay = () => {
    fetch(`http://localhost:3000/apod`)
-   .then(res => res.json())
-   .then(apod => updateStore(store, { apod })) 
+   .then(res =>{
+        if(res.ok){
+            return res.json();
+        }else{
+            throw new Error("Connot get apod data");
+        }
+    })  
+   .then(apod => updateStore(store, { apod }))
+   .catch((err) => console.log("Error:- " + err));   
 }     
 
 
