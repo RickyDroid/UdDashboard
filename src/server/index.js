@@ -65,9 +65,9 @@ app.get('/rover/:name/date/:date', async (req, res) => {
         //add images to dataObj and send
         dataObj.imagesArr = imgs; 
         res.send(dataObj); 
-
+        
     } catch (err) {
-        console.log('error:', err);
+        res.send(err); //send error to client
     }
 })
 
@@ -79,7 +79,7 @@ app.get('/apod', async (req, res) => {
         let image = await fetch(url).then(response => response.json())
         res.send(image) 
     } catch (err) {
-        console.log('error:', err);
+        res.send(err); //send error to client
     }
 })
 
