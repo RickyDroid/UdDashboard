@@ -1,12 +1,9 @@
 const dateC = document.getElementById('curiosity-dates');
 const dateO = document.getElementById('opportunity-dates');
 const dateS = document.getElementById('spirit-dates');
-
 const camC = document.getElementById('curiosity-cams');
 const camO = document.getElementById('opportunity-cams');
 const camS = document.getElementById('spirit-cams');
-
-const setUp = document.getElementById('setup');
 const rootEl = document.getElementById('root');
 
 //STATE store object
@@ -34,18 +31,22 @@ const getStore = () => {
 }
 
 //renders to the specified element the correct HTML at the correct event
-//         perameters:- where, what, when.
+//         parameters:- where, what, when.
 const render = async (element, state, myEvent) => {
-    element.innerHTML = app(state, myEvent);
+
+    element.innerHTML = app(state, myEvent, getHTML);
 }
 
-//return required HTML 
-const app = (state, myEvent) => {
+//return required HTML ...Higher Order Function
+//parameters:- what, when,    data/HTML- Callback                 
+const app = (state, myEvent, getHTML) => { 
+     
     let {apod, roverData} = state;
+
     switch(myEvent){
         case "displayApod" : {
             return `
-                ${imageOfTheDay(apod)}
+                ${getHTML("APOD")(apod)}
             `    
         }; 
         //fresh API data here so have to update the correct dropdowns.
@@ -54,16 +55,16 @@ const app = (state, myEvent) => {
             hideDropdowns();
             populateDropdowns(roverData); 
             return ` 
-               ${dataFromRover(roverData)} 
-               ${imagesFromRover(roverData)}
+               ${getHTML("DATA")(roverData)} 
+               ${getHTML("IMAGES")(getImages, roverData)()}
             `;
         };
         //here the images in roverData have been filtered by the cam dropdown.
         //no need to make another call the the API.
         case "dispRoverByCam" : {
             return ` 
-                ${dataFromRover(roverData)} 
-                ${imagesFromRover(roverData)}
+                ${getHTML("DATA")(roverData)} 
+                ${getHTML("IMAGES")(getImages, roverData)()}
             `;
         }
     }//switch 
@@ -86,21 +87,21 @@ const populateDropdowns = (roverData) => {
 
 //returns correct date element for rover 
 const selectDateDropdown = (roverData) => {
-    switch (roverData.roverName){
-       case "Curiosity" : return dateC; 
+    switch (roverData.roverName) {
+       case "Curiosity" : return dateC;
        case "Opportunity" : return dateO; 
-       case "Spirit" : return dateS; 
+       case "Spirit" : return dateS;
    }
-}
+} 
 
-//returns correct camera element for rover
+//returns correct cam element for rover 
 const selectCamDropdown = (roverData) => {
-   switch (roverData.roverName){
-       case "Curiosity" : return camC; 
+    switch (roverData.roverName) {
+       case "Curiosity" : return camC;
        case "Opportunity" : return camO; 
-       case "Spirit" : return camS; 
+       case "Spirit" : return camS;
    }
-}
+} 
 
 //adds all available image dates for selected rover
 const dateDropdown = (dateEl, roverData) => {
@@ -138,9 +139,19 @@ const camDropdown = (camEl, roverData) => {
 } 
 
 //--------------------COMPONENTS TO RENDER HTML------------------------
+//Higher Order Function
+const getHTML = (request) => {
+    switch (request) {
+        case "APOD"   : return imageOfTheDay;
+        case "DATA"   : return dataFromRover;
+        case "IMAGES" : return imagesFromRover;
+    } 
+     
+}
+
 const imageOfTheDay = (apod) => {
     if (apod.media_type !== "video"){
-        //Display new apod
+        //display new apod
         return`
             <div class="apod-container">
                 <h2>Astronomy Picture Of the Day</h2>
@@ -150,7 +161,7 @@ const imageOfTheDay = (apod) => {
             </div> 
        `;
     }else{
-        //Display a default mars image
+        //display a default mars image
         return`
             <div class="apod-container">
                 <h2>Select A Rover</h2>
@@ -183,43 +194,36 @@ const dataFromRover = (roverData) => {
     `;
 }
 
-const imagesFromRover = (roverData) => {
-    //create outer grid
-    let html = ''; 
-    
-    selectImages(roverData).forEach((img) => {
-        //create inner grid 
-        html += `
-            <div class="inner-grid">
-                ${oneImageFromRover(img)}
+//Higher Order Function
+const imagesFromRover = (getImages, roverData) => {
+    let images = getImages(roverData);
+
+    return function(){
+        let html = ''; 
+        images.forEach((img) => {
+            html += `
+                <div class="inner-grid">
+                    <div class="rover-image-container">
+                        <p>${img.camera}</p>
+                        <img src=${img.image}>
+                    </div>  
+                </div>
+            `;
+        })
+        return `
+            <div class="outer-grid">
+            ${html}
             </div>
         `;
-    })
-
-    return `
-        <div class="outer-grid">
-           ${html}
-        </div>
-    `;
+   };  
 }
 
-const selectImages = (roverData) => {
-    let camDropdown = selectCamDropdown(roverData);
-    if (camDropdown.value === "ALLCAMS"){
-        return roverData.imagesArr;
-    }else{
-        return roverData.imagesArr.filter(obj => obj.camCode === camDropdown.value);       
-    }
+const getImages = (roverData) => {
+    return (selectCamDropdown(roverData).value === "ALLCAMS") ?
+        roverData.imagesArr :
+        roverData.imagesArr.filter(obj => obj.camCode === camDropdown.value);       
 }
 
-const oneImageFromRover = (img) => {
-    return `
-        <div class="rover-image-container">
-            <p>${img.camera}</p>
-            <img src=${img.image}>
-        </div>  
-    `;
-}
 
 // -----------------------------EVENTS----------------------------------------
 window.addEventListener("load", () => {
