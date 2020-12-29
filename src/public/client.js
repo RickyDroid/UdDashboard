@@ -267,7 +267,7 @@ const getDataFromRover = (roverName, date) => {
         if(res.ok){
             return res.json();
         }else{
-            throw new Error("Connot get rover data");
+            throw new Error("Failed to get rover data");
         }
     })
     .then(roverData => updateStore(store, { roverData }))
@@ -280,7 +280,7 @@ const getImageOfTheDay = () => {
         if(res.ok){
             return res.json();
         }else{
-            throw new Error("Connot get apod data");
+            throw new Error("Failed to get apod data");
         }
     })  
    .then(apod => updateStore(store, { apod }))
